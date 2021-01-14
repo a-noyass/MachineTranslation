@@ -1,4 +1,4 @@
-﻿namespace MachineTranslation.Configs
+﻿namespace Azure.AI.Translator.Configs
 {
     class Constants
     {

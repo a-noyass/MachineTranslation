@@ -1,30 +1,38 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using Azure.AI.Translator.Models;
 using MachineTranslation.Http;
-using MachineTranslation.Models;
+using MachineTranslation.Translator;
 using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 
-namespace MachineTranslation.Translator
+namespace Azure.AI.Translator
 {
-    public class MicrosoftTranslator : IMicrosoftTranslator
+    public class TranslatorClient : ITranslatorClient
     {
         // client
         private static IHttpHandler _client = new HttpHandler();
 
         // attributes
-        private string _subscriptionKey;
-        private string _endpoint = "https://api.cognitive.microsofttranslator.com/";
-        private string _location;
+        private readonly string _subscriptionKey;
+        private readonly string _endpoint = "https://api.cognitive.microsofttranslator.com/";
+        private readonly string _location;
+        private readonly ServiceVersion _version;
 
 
-        public MicrosoftTranslator(string subscriptionKey, string location)
+        public TranslatorClient(string subscriptionKey, string location, TranslatorClientOptions options)
         {
             _subscriptionKey = subscriptionKey;
             _location = location;
+            _version = options.Version;
+        }
+
+        public TranslatorClient(string subscriptionKey, string location)
+            : this(subscriptionKey, location, new TranslatorClientOptions())
+        {
         }
 
         public async Task<string> TranslateAsync(LanguageCodes fromLanguage, LanguageCodes toLanguage, string sentence)

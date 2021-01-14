@@ -1,4 +1,4 @@
-﻿namespace MachineTranslation.Models
+﻿namespace Azure.AI.Translator.Models
 {
     public enum LanguageCodes
     {
