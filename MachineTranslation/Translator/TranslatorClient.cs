@@ -22,6 +22,10 @@ namespace Azure.AI.Translator
         private readonly string _location;
         private readonly ServiceVersion _version;
 
+        protected TranslatorClient()
+        {
+            // parameterless constructor for mocking
+        }
 
         public TranslatorClient(string subscriptionKey, string location, TranslatorClientOptions options)
         {
