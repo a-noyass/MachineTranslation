@@ -6,6 +6,6 @@ namespace MachineTranslation.Translator
 {
     public interface ITranslatorClient
     {
-        public Task<string> TranslateAsync(LanguageCodes fromLanguage, LanguageCodes toLanguage, string sentence);
+        Task<string> TranslateAsync(LanguageCodes fromLanguage, LanguageCodes toLanguage, string sentence);
     }
 }
