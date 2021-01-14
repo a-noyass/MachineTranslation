@@ -2,6 +2,8 @@
 // Licensed under the MIT License.
 
 using Azure.AI.Translator.Models;
+using Azure.Core;
+using Azure.Core.Pipeline;
 using MachineTranslation.Http;
 using MachineTranslation.Translator;
 using System;
@@ -11,8 +13,12 @@ using System.Threading.Tasks;
 
 namespace Azure.AI.Translator
 {
+    /// <summary>
+    /// The client to use for interacting with the Azure Translator Service.
+    /// </summary>
     public class TranslatorClient : ITranslatorClient
     {
+        HttpPipeline _httpPipeline;
         // client
         private static readonly IHttpHandler _client = new HttpHandler();
 
@@ -20,20 +26,33 @@ namespace Azure.AI.Translator
         private readonly string _subscriptionKey;
         private readonly string _endpoint = "https://api.cognitive.microsofttranslator.com/";
         private readonly string _location;
-        private readonly ServiceVersion _version;
+        private readonly string _version;
 
+        /// <summary>
+        /// Protected constructor to allow mocking.
+        /// </summary>
         protected TranslatorClient()
         {
-            // parameterless constructor for mocking
         }
 
+        /// <summary>
+        /// Initializes a new instance of <see cref="TranslatorClient"/>
+        /// </summary>
+        /// <param name="subscriptionKey">The key for the Azure Translator resource.</param>
+        /// <param name="location">The location of the Azure translator resource.</param>
+        /// <param name="options">Options that allow configuration of requests sent to the Translator Service.</param>
         public TranslatorClient(string subscriptionKey, string location, TranslatorClientOptions options)
         {
             _subscriptionKey = subscriptionKey;
             _location = location;
-            _version = options.Version;
+            _version = options.GetVersionString();
         }
 
+        /// <summary>
+        /// Initializes a new instance of <see cref="TranslatorClient"/>
+        /// </summary>
+        /// <param name="subscriptionKey">The key for the Azure Translator resource.</param>
+        /// <param name="location">The location of the Azure translator resource.</param>
         public TranslatorClient(string subscriptionKey, string location)
             : this(subscriptionKey, location, new TranslatorClientOptions())
         {
@@ -83,7 +102,7 @@ namespace Azure.AI.Translator
         {
             var dictionary = new Dictionary<string, string>
             {
-                ["api-version"] = GetVersionString(),
+                ["api-version"] = _version,
                 ["to"] = options.To.ToString()
             };
 
@@ -133,17 +152,6 @@ namespace Azure.AI.Translator
             }
 
             return dictionary;
-        }
-
-        private string GetVersionString()
-        {
-            switch (_version)
-            {
-                case ServiceVersion.V3_0:
-                    return "3.0";
-                default:
-                    return "3.0";
-            }
         }
     }
 }
