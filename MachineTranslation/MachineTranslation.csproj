@@ -1,7 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <OutputType>Exe</OutputType>
     <TargetFramework>netstandard2.0</TargetFramework>
     <RootNamespace>Azure.AI.Translator</RootNamespace>
   </PropertyGroup>

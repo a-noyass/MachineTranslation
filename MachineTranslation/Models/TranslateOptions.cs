@@ -6,7 +6,7 @@
         public LanguageCodes? From { get; set; }
         public TextType? TextType { get; set; }
         public string Category { get; set; }
-        public ProfanityAction ProfanityAction { get; set; }
+        public ProfanityAction? ProfanityAction { get; set; }
         public string ProfanityMarker { get; set; }
         public bool? IncludeAlignment { get; set; }
         public bool? IncludeSentenceLength { get; set; }

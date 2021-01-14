@@ -14,7 +14,7 @@ namespace Azure.AI.Translator
     public class TranslatorClient : ITranslatorClient
     {
         // client
-        private static IHttpHandler _client = new HttpHandler();
+        private static readonly IHttpHandler _client = new HttpHandler();
 
         // attributes
         private readonly string _subscriptionKey;
@@ -58,12 +58,7 @@ namespace Azure.AI.Translator
 
             // define parameters
             // string route = "/translate?api-version=3.0&from=en&to=de&to=it"; ------------------>>>>>> TODO (multiple to language!)
-            var parameters = new Dictionary<string, string>
-            {
-                ["api-version"] = "3.0",
-                ["from"] = options.From.ToString(),
-                ["to"] = options.To.ToString()
-            };
+            Dictionary<string, string> parameters = CreateParametersDictionary(options);
 
             // get api response
             var response = await _client.SendJsonPostRequestAsync(requestUrl, body, headers, parameters);
@@ -77,6 +72,73 @@ namespace Azure.AI.Translator
             {
                 throw new Exception();
                 //throw new FetchingExamplesFailedException(response.StatusCode.ToString());
+            }
+        }
+
+        private Dictionary<string, string> CreateParametersDictionary(TranslateOptions options)
+        {
+            var dictionary = new Dictionary<string, string>
+            {
+                ["api-version"] = GetVersionString(),
+                ["to"] = options.To.ToString()
+            };
+
+            if (options.From != null)
+            {
+                dictionary["from"] = options.From.ToString();
+            }
+            if (options.AllowFallback != null)
+            {
+                dictionary["allowFallback"] = options.AllowFallback.ToString();
+            }
+            if (options.Category != null)
+            {
+                dictionary["category"] = options.Category;
+            }
+            if (options.FromScript != null)
+            {
+                dictionary["fromScript"] = options.FromScript;
+            }
+            if (options.IncludeAlignment != null)
+            {
+                dictionary["includeAlignment"] = options.IncludeAlignment.ToString();
+            }
+            if (options.IncludeSentenceLength != null)
+            {
+                dictionary["includeSentenceLength"] = options.IncludeSentenceLength.ToString();
+            }
+            if (options.ProfanityAction != null)
+            {
+                dictionary["profanityAction"] = options.ProfanityAction.ToString();
+            }
+            if (options.ProfanityMarker != null)
+            {
+                dictionary["profanityMarker"] = options.ProfanityMarker;
+            }
+            if (options.SuggestedFrom != null)
+            {
+                dictionary["suggestedFrom"] = options.SuggestedFrom;
+            }
+            if (options.TextType != null)
+            {
+                dictionary["textType"] = options.TextType.ToString();
+            }
+            if (options.ToScript != null)
+            {
+                dictionary["toScript"] = options.ToScript;
+            }
+
+            return dictionary;
+        }
+
+        private string GetVersionString()
+        {
+            switch (_version)
+            {
+                case ServiceVersion.V3_0:
+                    return "3.0";
+                default:
+                    return "3.0";
             }
         }
     }
