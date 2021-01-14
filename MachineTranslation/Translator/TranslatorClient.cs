@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using Azure.AI.Translator.Http;
 using Azure.AI.Translator.Models;
 using Azure.Core;
 using Azure.Core.Pipeline;
@@ -46,7 +47,14 @@ namespace Azure.AI.Translator
             _subscriptionKey = subscriptionKey;
             _location = location;
             _version = options.GetVersionString();
+            _httpPipeline = CreatePipeline(options, new CustomHeadersPolicy(subscriptionKey, location));
         }
+
+        private static HttpPipeline CreatePipeline(TranslatorClientOptions options, HttpPipelinePolicy authenticationPolicy)
+            => HttpPipelineBuilder.Build(options,
+                new HttpPipelinePolicy[] { authenticationPolicy, new ApiVersionPolicy(options.GetVersionString()) },
+                new HttpPipelinePolicy[] { },
+                new ResponseClassifier());
 
         /// <summary>
         /// Initializes a new instance of <see cref="TranslatorClient"/>
@@ -97,6 +105,17 @@ namespace Azure.AI.Translator
                 //throw new FetchingExamplesFailedException(response.StatusCode.ToString());
             }
         }
+
+        //private Request CreateTranslateRequest(string sentence, TranslateOptions options)
+        //{
+        //    Request request = _httpPipeline.CreateRequest();
+        //    request.Method = RequestMethod.Post;
+
+        //    request.Headers.Add(HttpHeader.Common.JsonContentType);
+
+        //    request.Content = new RequestContent()
+
+        //}
 
         private Dictionary<string, string> CreateParametersDictionary(TranslateOptions options)
         {
