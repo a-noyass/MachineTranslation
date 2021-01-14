@@ -35,7 +35,12 @@ namespace Azure.AI.Translator
         {
         }
 
-        public async Task<string> TranslateAsync(LanguageCodes fromLanguage, LanguageCodes toLanguage, string sentence)
+        public async Task<string> TranslateAsync(string sentence, LanguageCodes toLanguage)
+        {
+            return await TranslateAsync(sentence, new TranslateOptions { To = toLanguage });
+        }
+
+        public async Task<string> TranslateAsync(string sentence, TranslateOptions options)
         {
             // define url
             var route = "/translate";
@@ -56,8 +61,8 @@ namespace Azure.AI.Translator
             var parameters = new Dictionary<string, string>
             {
                 ["api-version"] = "3.0",
-                ["from"] = fromLanguage.ToString(),
-                ["to"] = toLanguage.ToString()
+                ["from"] = options.From.ToString(),
+                ["to"] = options.To.ToString()
             };
 
             // get api response
@@ -74,6 +79,5 @@ namespace Azure.AI.Translator
                 //throw new FetchingExamplesFailedException(response.StatusCode.ToString());
             }
         }
-
     }
 }

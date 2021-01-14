@@ -16,7 +16,7 @@ namespace MachineTranslation.Tests
             var translator = new TranslatorClient(subscriptionKey, location);
 
             string sentence = "hello world";
-            var response = await translator.TranslateAsync(LanguageCodes.EN, LanguageCodes.AR, sentence);
+            var response = await translator.TranslateAsync(sentence, LanguageCodes.AR);
 
             Console.WriteLine(response);
         }
