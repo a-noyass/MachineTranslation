@@ -4,7 +4,7 @@
 using Azure.Core;
 using Azure.Core.Pipeline;
 
-namespace Azure.AI.Translator.Http
+namespace Azure.AI.Translator.Http.PipelinePolicies
 {
     internal class ApiVersionPolicy : HttpPipelineSynchronousPolicy
     {

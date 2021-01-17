@@ -1,4 +1,7 @@
-﻿using Azure.AI.Translator.Models;
+﻿// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
+using Azure.AI.Translator.Models;
 using Azure.Core;
 using Azure.Core.Pipeline;
 using Newtonsoft.Json;

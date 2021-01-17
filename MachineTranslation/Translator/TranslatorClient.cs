@@ -2,8 +2,8 @@
 // Licensed under the MIT License.
 
 using Azure.AI.Translator.Http;
+using Azure.AI.Translator.Http.PipelinePolicies;
 using Azure.AI.Translator.Models;
-using Azure.Core;
 using Azure.Core.Pipeline;
 using System.Threading;
 using System.Threading.Tasks;
@@ -16,12 +16,12 @@ namespace Azure.AI.Translator
     public class TranslatorClient
     {
 
-        TranslatorRestClient _restClient;
+        private readonly TranslatorRestClient _restClient;
+
         // attributes
-        private readonly string _subscriptionKey;
-        private readonly string _endpoint = "https://api.cognitive.microsofttranslator.com/";
-        private readonly string _location;
-        private readonly string _version;
+        private const string Endpoint = "https://api.cognitive.microsofttranslator.com/";
+        private const string AuthorizationHeader = "Ocp-Apim-Subscription-Key";
+        private const string LocationHeader = "Ocp-Apim-Subscription-Region";
 
         /// <summary>
         /// Protected constructor to allow mocking.
@@ -36,28 +36,23 @@ namespace Azure.AI.Translator
         /// <param name="subscriptionKey">The key for the Azure Translator resource.</param>
         /// <param name="location">The location of the Azure translator resource.</param>
         /// <param name="options">Options that allow configuration of requests sent to the Translator Service.</param>
-        public TranslatorClient(string subscriptionKey, string location, TranslatorClientOptions options)
+        public TranslatorClient(string location, AzureKeyCredential subscriptionKey, TranslatorClientOptions options)
         {
-            _subscriptionKey = subscriptionKey;
-            _location = location;
-            _version = options.GetVersionString();
-            var pipeline = CreatePipeline(options, new CustomHeadersPolicy(subscriptionKey, location));
-            _restClient = new TranslatorRestClient(pipeline, _endpoint);
+            var pipeline = HttpPipelineBuilder.Build(
+                options,
+                new AzureKeyCredentialPolicy(subscriptionKey, AuthorizationHeader),
+                new CustomHeaderPolicy(LocationHeader, location),
+                new ApiVersionPolicy(options.GetVersionString()));
+            _restClient = new TranslatorRestClient(pipeline, Endpoint);
         }
-
-        private static HttpPipeline CreatePipeline(TranslatorClientOptions options, HttpPipelinePolicy authenticationPolicy)
-            => HttpPipelineBuilder.Build(options,
-                new HttpPipelinePolicy[] { authenticationPolicy, new ApiVersionPolicy(options.GetVersionString()) },
-                new HttpPipelinePolicy[] { },
-                new ResponseClassifier());
 
         /// <summary>
         /// Initializes a new instance of <see cref="TranslatorClient"/>
         /// </summary>
         /// <param name="subscriptionKey">The key for the Azure Translator resource.</param>
         /// <param name="location">The location of the Azure translator resource.</param>
-        public TranslatorClient(string subscriptionKey, string location)
-            : this(subscriptionKey, location, new TranslatorClientOptions())
+        public TranslatorClient(string location, AzureKeyCredential subscriptionKey)
+            : this(location, subscriptionKey, new TranslatorClientOptions())
         {
         }
 
@@ -71,9 +66,5 @@ namespace Azure.AI.Translator
             var result = await _restClient.TranslateAsync(sentence, options, cancellationToken);
             return result;
         }
-
-
-
-
     }
 }
