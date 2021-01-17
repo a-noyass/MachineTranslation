@@ -5,26 +5,18 @@ using Azure.AI.Translator.Http;
 using Azure.AI.Translator.Models;
 using Azure.Core;
 using Azure.Core.Pipeline;
-using MachineTranslation.Http;
-using MachineTranslation.Translator;
-using System;
-using System.Collections.Generic;
-using System.Net;
-using System.Text.Json;
-using System.Threading.Tasks;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Azure.AI.Translator
 {
     /// <summary>
     /// The client to use for interacting with the Azure Translator Service.
     /// </summary>
-    public class TranslatorClient : ITranslatorClient
+    public class TranslatorClient
     {
-        HttpPipeline _httpPipeline;
-        // client
-        private static readonly IHttpHandler _client = new HttpHandler();
 
+        TranslatorRestClient _restClient;
         // attributes
         private readonly string _subscriptionKey;
         private readonly string _endpoint = "https://api.cognitive.microsofttranslator.com/";
@@ -49,7 +41,8 @@ namespace Azure.AI.Translator
             _subscriptionKey = subscriptionKey;
             _location = location;
             _version = options.GetVersionString();
-            _httpPipeline = CreatePipeline(options, new CustomHeadersPolicy(subscriptionKey, location));
+            var pipeline = CreatePipeline(options, new CustomHeadersPolicy(subscriptionKey, location));
+            _restClient = new TranslatorRestClient(pipeline, _endpoint);
         }
 
         private static HttpPipeline CreatePipeline(TranslatorClientOptions options, HttpPipelinePolicy authenticationPolicy)
@@ -68,130 +61,19 @@ namespace Azure.AI.Translator
         {
         }
 
-        public async Task<string> TranslateAsync(string sentence, LanguageCodes toLanguage)
+        public async Task<Response<TranslateResult[]>> TranslateAsync(string sentence, LanguageCodes toLanguage)
         {
             return await TranslateAsync(sentence, new TranslateOptions { To = toLanguage });
         }
 
-        public async Task<string> TranslateAsync(string sentence, TranslateOptions options)
+        public async Task<Response<TranslateResult[]>> TranslateAsync(string sentence, TranslateOptions options, CancellationToken cancellationToken = default)
         {
-            // define url
-            var route = "/translate";
-            var requestUrl = _endpoint + route;
-
-            // define body
-            object[] body = new object[] { new { Text = sentence } };
-
-            // define headers
-            var headers = new Dictionary<string, string>
-            {
-                ["Ocp-Apim-Subscription-Key"] = _subscriptionKey,
-                ["Ocp-Apim-Subscription-Region"] = _location,
-            };
-
-            // define parameters
-            // string route = "/translate?api-version=3.0&from=en&to=de&to=it"; ------------------>>>>>> TODO (multiple to language!)
-            Dictionary<string, string> parameters = CreateParametersDictionary(options);
-
-            // get api response
-            var response = await _client.SendJsonPostRequestAsync(requestUrl, body, headers, parameters);
-            if (response.StatusCode == HttpStatusCode.OK)
-            {
-                var responseString = await response.Content.ReadAsStringAsync();
-                //var getClosedListResponse = JsonConvert.DeserializeObject<List<GetClosedListResponse>>(responseString);
-                return responseString;
-            }
-            else
-            {
-                throw new Exception();
-                //throw new FetchingExamplesFailedException(response.StatusCode.ToString());
-            }
+            var result = await _restClient.TranslateAsync(sentence, options, cancellationToken);
+            return result;
         }
 
-        public async Task<JsonDocument> TranslateAsyncNew(string sentence, TranslateOptions options, CancellationToken cancellationToken)
-        {
-            Request request = CreateTranslateRequest(sentence, options);
-            Response response = _httpPipeline.SendRequest(request, cancellationToken);
-            JsonDocument json = await JsonDocument.ParseAsync(response.ContentStream, default, cancellationToken);
-            return json;
-        }
 
-        private Request CreateTranslateRequest(string sentence, TranslateOptions options)
-        {
-            // define url
-            var route = "/translate";
 
-            Request request = _httpPipeline.CreateRequest();
-            request.Method = RequestMethod.Post;
 
-            request.Headers.Add(HttpHeader.Common.JsonContentType);
-            var content = JsonSerializer.SerializeToUtf8Bytes(new object[] { new { Text = sentence } });
-            request.Content = RequestContent.Create(content);
-            request.Uri = new RequestUriBuilder();
-            request.Uri.Reset(new Uri(_endpoint));
-            request.Uri.AppendPath(route);
-            Dictionary<string, string> parameters = CreateParametersDictionary(options);
-            foreach (var p in parameters)
-            {
-                request.Uri.AppendQuery(p.Key, p.Value);
-            }
-            return request;
-        }
-
-        private Dictionary<string, string> CreateParametersDictionary(TranslateOptions options)
-        {
-            var dictionary = new Dictionary<string, string>
-            {
-                ["api-version"] = _version,
-                ["to"] = options.To.ToString()
-            };
-
-            if (options.From != null)
-            {
-                dictionary["from"] = options.From.ToString();
-            }
-            if (options.AllowFallback != null)
-            {
-                dictionary["allowFallback"] = options.AllowFallback.ToString();
-            }
-            if (options.Category != null)
-            {
-                dictionary["category"] = options.Category;
-            }
-            if (options.FromScript != null)
-            {
-                dictionary["fromScript"] = options.FromScript;
-            }
-            if (options.IncludeAlignment != null)
-            {
-                dictionary["includeAlignment"] = options.IncludeAlignment.ToString();
-            }
-            if (options.IncludeSentenceLength != null)
-            {
-                dictionary["includeSentenceLength"] = options.IncludeSentenceLength.ToString();
-            }
-            if (options.ProfanityAction != null)
-            {
-                dictionary["profanityAction"] = options.ProfanityAction.ToString();
-            }
-            if (options.ProfanityMarker != null)
-            {
-                dictionary["profanityMarker"] = options.ProfanityMarker;
-            }
-            if (options.SuggestedFrom != null)
-            {
-                dictionary["suggestedFrom"] = options.SuggestedFrom;
-            }
-            if (options.TextType != null)
-            {
-                dictionary["textType"] = options.TextType.ToString();
-            }
-            if (options.ToScript != null)
-            {
-                dictionary["toScript"] = options.ToScript;
-            }
-
-            return dictionary;
-        }
     }
 }

@@ -6,16 +6,16 @@ using System.Collections.Generic;
 
 namespace Azure.AI.Translator.Models
 {
-    public class TranslatorResponse
+    public class TranslateResult
     {
         [JsonProperty("detectedLanguage")]
         public DetectedLanguage DetectedLanguage { get; set; }
 
         [JsonProperty("translations")]
-        public IEnumerable<TranslatorResult> Translations { get; set; }
+        public IEnumerable<Translation> Translations { get; set; }
     }
 
-    public class TranslatorResult
+    public class Translation
     {
         [JsonProperty("text")]
         public string Text { get; set; }
@@ -30,6 +30,6 @@ namespace Azure.AI.Translator.Models
         public string Language { get; set; }
 
         [JsonProperty("score")]
-        public long Score { get; set; }
+        public double Score { get; set; }
     }
 }
