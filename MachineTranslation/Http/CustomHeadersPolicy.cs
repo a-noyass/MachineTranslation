@@ -16,7 +16,7 @@ namespace Azure.AI.Translator.Http
             _headers = new List<HttpHeader>
             {
                 new HttpHeader("Ocp-Apim-Subscription-Key", key),
-                new HttpHeader("Ocp-Apim-Subscription-Region", key)
+                new HttpHeader("Ocp-Apim-Subscription-Region", region)
             };
         }
 

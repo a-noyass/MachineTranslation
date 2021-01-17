@@ -10,7 +10,9 @@ using MachineTranslation.Translator;
 using System;
 using System.Collections.Generic;
 using System.Net;
+using System.Text.Json;
 using System.Threading.Tasks;
+using System.Threading;
 
 namespace Azure.AI.Translator
 {
@@ -106,16 +108,35 @@ namespace Azure.AI.Translator
             }
         }
 
-        //private Request CreateTranslateRequest(string sentence, TranslateOptions options)
-        //{
-        //    Request request = _httpPipeline.CreateRequest();
-        //    request.Method = RequestMethod.Post;
+        public async Task<JsonDocument> TranslateAsyncNew(string sentence, TranslateOptions options, CancellationToken cancellationToken)
+        {
+            Request request = CreateTranslateRequest(sentence, options);
+            Response response = _httpPipeline.SendRequest(request, cancellationToken);
+            JsonDocument json = await JsonDocument.ParseAsync(response.ContentStream, default, cancellationToken);
+            return json;
+        }
 
-        //    request.Headers.Add(HttpHeader.Common.JsonContentType);
+        private Request CreateTranslateRequest(string sentence, TranslateOptions options)
+        {
+            // define url
+            var route = "/translate";
 
-        //    request.Content = new RequestContent()
+            Request request = _httpPipeline.CreateRequest();
+            request.Method = RequestMethod.Post;
 
-        //}
+            request.Headers.Add(HttpHeader.Common.JsonContentType);
+            var content = JsonSerializer.SerializeToUtf8Bytes(new object[] { new { Text = sentence } });
+            request.Content = RequestContent.Create(content);
+            request.Uri = new RequestUriBuilder();
+            request.Uri.Reset(new Uri(_endpoint));
+            request.Uri.AppendPath(route);
+            Dictionary<string, string> parameters = CreateParametersDictionary(options);
+            foreach (var p in parameters)
+            {
+                request.Uri.AppendQuery(p.Key, p.Value);
+            }
+            return request;
+        }
 
         private Dictionary<string, string> CreateParametersDictionary(TranslateOptions options)
         {
