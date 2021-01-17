@@ -4,6 +4,7 @@
 using Azure.AI.Translator.Http;
 using Azure.AI.Translator.Http.PipelinePolicies;
 using Azure.AI.Translator.Models;
+using Azure.Core;
 using Azure.Core.Pipeline;
 using System.Threading;
 using System.Threading.Tasks;
@@ -17,6 +18,7 @@ namespace Azure.AI.Translator
     {
 
         private readonly TranslatorRestClient _restClient;
+        internal readonly ClientDiagnostics _clientDiagnostics;
 
         // attributes
         private const string Endpoint = "https://api.cognitive.microsofttranslator.com/";
@@ -38,12 +40,13 @@ namespace Azure.AI.Translator
         /// <param name="options">Options that allow configuration of requests sent to the Translator Service.</param>
         public TranslatorClient(string location, AzureKeyCredential subscriptionKey, TranslatorClientOptions options)
         {
+            _clientDiagnostics = new ClientDiagnostics(options);
             var pipeline = HttpPipelineBuilder.Build(
                 options,
                 new AzureKeyCredentialPolicy(subscriptionKey, AuthorizationHeader),
                 new CustomHeaderPolicy(LocationHeader, location),
                 new ApiVersionPolicy(options.GetVersionString()));
-            _restClient = new TranslatorRestClient(pipeline, Endpoint);
+            _restClient = new TranslatorRestClient(_clientDiagnostics, pipeline, Endpoint);
         }
 
         /// <summary>

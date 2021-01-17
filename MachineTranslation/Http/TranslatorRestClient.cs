@@ -17,19 +17,20 @@ namespace Azure.AI.Translator.Http
     {
         private string _endpoint;
         private HttpPipeline _pipeline;
+        private ClientDiagnostics _clientDiagnostics;
 
         /// <summary> Initializes a new instance of TranslatorRestClient. </summary>
         /// <param name="pipeline"> The HTTP pipeline for sending and receiving REST requests and responses. </param>
         /// <param name="endpoint"> Supported Cognitive Services endpoints (protocol and hostname, for example: https://westus.api.cognitive.microsoft.com). </param>
         /// <exception cref="ArgumentNullException"> <paramref name="endpoint"/> is null. </exception>
-        public TranslatorRestClient(HttpPipeline pipeline, string endpoint)
+        public TranslatorRestClient(ClientDiagnostics clientDiagnostics, HttpPipeline pipeline, string endpoint)
         {
             if (endpoint == null)
             {
                 throw new ArgumentNullException(nameof(endpoint));
             }
-
-            this._endpoint = endpoint;
+            _clientDiagnostics = clientDiagnostics;
+            _endpoint = endpoint;
             _pipeline = pipeline;
         }
 
@@ -75,8 +76,7 @@ namespace Azure.AI.Translator.Http
                         return Response.FromValue(value, message.Response);
                     }
                 default:
-                    throw new Exception();
-                    //throw await _clientDiagnostics.CreateRequestFailedExceptionAsync(message.Response).ConfigureAwait(false);
+                    throw await _clientDiagnostics.CreateRequestFailedExceptionAsync(message.Response).ConfigureAwait(false);
             }
         }
 
