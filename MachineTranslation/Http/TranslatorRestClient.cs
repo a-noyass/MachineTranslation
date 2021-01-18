@@ -34,7 +34,7 @@ namespace Azure.AI.Translator.Http
             _pipeline = pipeline;
         }
 
-        internal HttpMessage CreateTranslateRequest(string sentence, TranslateOptions options)
+        internal HttpMessage CreateTranslateRequest(string text, TranslateOptions options)
         {
             // initialize request
             var message = _pipeline.CreateMessage();
@@ -55,23 +55,23 @@ namespace Azure.AI.Translator.Http
             // add headers
             request.Headers.Add(HttpHeader.Common.JsonContentType);
 
-            var content = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(new object[] { new { Text = sentence } });
+            var content = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(new object[] { new { Text = text } });
             request.Content = RequestContent.Create(content);
 
             return message;
         }
 
-        public async Task<Response<TranslateResult[]>> TranslateAsync(string sentence, TranslateOptions options, CancellationToken cancellationToken)
+        public async Task<Response<IReadOnlyList<TranslateResult>>> TranslateAsync(string text, TranslateOptions options, CancellationToken cancellationToken)
         {
-            using var message = CreateTranslateRequest(sentence, options);
+            using var message = CreateTranslateRequest(text, options);
             await _pipeline.SendAsync(message, cancellationToken).ConfigureAwait(false);
             switch (message.Response.Status)
             {
                 case 200:
                     {
-                        TranslateResult[] value = default;
+                        IReadOnlyList<TranslateResult> value = default;
                         using var document = await JsonDocument.ParseAsync(message.Response.ContentStream, default, cancellationToken).ConfigureAwait(false);
-                        value = JsonConvert.DeserializeObject<TranslateResult[]>(document.RootElement.GetRawText());
+                        value = JsonConvert.DeserializeObject<List<TranslateResult>>(document.RootElement.GetRawText());
 
                         return Response.FromValue(value, message.Response);
                     }
@@ -84,12 +84,12 @@ namespace Azure.AI.Translator.Http
         {
             var dictionary = new Dictionary<string, string>
             {
-                ["to"] = options.To.ToString()
+                ["to"] = options.ToLanguage.ToString()
             };
 
-            if (options.From != null)
+            if (options.FromLanguage != null)
             {
-                dictionary["from"] = options.From.ToString();
+                dictionary["from"] = options.FromLanguage.ToString();
             }
             if (options.AllowFallback != null)
             {

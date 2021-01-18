@@ -6,6 +6,7 @@ using Azure.AI.Translator.Http.PipelinePolicies;
 using Azure.AI.Translator.Models;
 using Azure.Core;
 using Azure.Core.Pipeline;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -59,17 +60,26 @@ namespace Azure.AI.Translator
         {
         }
 
-        public async Task<Response<TranslateResult[]>> TranslateAsync(string sentence, LanguageCode toLanguage, CancellationToken cancellationToken = default)
+        public Response<IReadOnlyList<TranslateResult>> Translate(string text, LanguageCode toLanguage, CancellationToken cancellationToken = default)
         {
-            return await TranslateAsync(sentence, new TranslateOptions { To = toLanguage }, cancellationToken);
+            return Translate(text, new TranslateOptions { ToLanguage = toLanguage }, cancellationToken);
+        }
+        public Response<IReadOnlyList<TranslateResult>> Translate(string text, TranslateOptions options, CancellationToken cancellationToken = default)
+        {
+            return TranslateAsync(text, options, cancellationToken).GetAwaiter().GetResult();
         }
 
-        public async Task<Response<TranslateResult[]>> TranslateAsync(string sentence, TranslateOptions options, CancellationToken cancellationToken = default)
+        public async Task<Response<IReadOnlyList<TranslateResult>>> TranslateAsync(string text, LanguageCode toLanguage, CancellationToken cancellationToken = default)
         {
-            Argument.AssertNotNullOrEmpty(sentence, nameof(sentence));
+            return await TranslateAsync(text, new TranslateOptions { ToLanguage = toLanguage }, cancellationToken).ConfigureAwait(false);
+        }
+
+        public async Task<Response<IReadOnlyList<TranslateResult>>> TranslateAsync(string text, TranslateOptions options, CancellationToken cancellationToken = default)
+        {
+            Argument.AssertNotNullOrEmpty(text, nameof(text));
             Argument.AssertNotNull(options, nameof(options));
-            Argument.AssertNotNull(options.To, nameof(options.To));
-            var result = await _restClient.TranslateAsync(sentence, options, cancellationToken);
+            Argument.AssertNotNull(options.ToLanguage, nameof(options.ToLanguage));
+            var result = await _restClient.TranslateAsync(text, options, cancellationToken).ConfigureAwait(false);
             return result;
         }
     }

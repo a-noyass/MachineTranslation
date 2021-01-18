@@ -19,8 +19,8 @@ namespace MachineTranslation.Tests
             string location = "westus";
             var translator = new TranslatorClient(location, new AzureKeyCredential(subscriptionKey));
 
-            string sentence = "hello world";
-            var response = await translator.TranslateAsync(sentence, LanguageCode.AR);
+            string text = "hello world";
+            var response = await translator.TranslateAsync(text, LanguageCode.AR);
 
             Console.WriteLine(response);
         }
