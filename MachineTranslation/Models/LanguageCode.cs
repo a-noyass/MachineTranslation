@@ -3,7 +3,7 @@
 
 namespace Azure.AI.Translator.Models
 {
-    public enum LanguageCodes
+    public enum LanguageCode
     {
         EN,
         AR,

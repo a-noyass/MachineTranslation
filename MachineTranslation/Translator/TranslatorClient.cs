@@ -59,13 +59,16 @@ namespace Azure.AI.Translator
         {
         }
 
-        public async Task<Response<TranslateResult[]>> TranslateAsync(string sentence, LanguageCodes toLanguage)
+        public async Task<Response<TranslateResult[]>> TranslateAsync(string sentence, LanguageCode toLanguage, CancellationToken cancellationToken = default)
         {
-            return await TranslateAsync(sentence, new TranslateOptions { To = toLanguage });
+            return await TranslateAsync(sentence, new TranslateOptions { To = toLanguage }, cancellationToken);
         }
 
         public async Task<Response<TranslateResult[]>> TranslateAsync(string sentence, TranslateOptions options, CancellationToken cancellationToken = default)
         {
+            Argument.AssertNotNullOrEmpty(sentence, nameof(sentence));
+            Argument.AssertNotNull(options, nameof(options));
+            Argument.AssertNotNull(options.To, nameof(options.To));
             var result = await _restClient.TranslateAsync(sentence, options, cancellationToken);
             return result;
         }

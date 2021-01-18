@@ -15,9 +15,9 @@ namespace Azure.AI.Translator.Http
 {
     internal class TranslatorRestClient
     {
-        private string _endpoint;
-        private HttpPipeline _pipeline;
-        private ClientDiagnostics _clientDiagnostics;
+        private readonly string _endpoint;
+        private readonly HttpPipeline _pipeline;
+        private readonly ClientDiagnostics _clientDiagnostics;
 
         /// <summary> Initializes a new instance of TranslatorRestClient. </summary>
         /// <param name="pipeline"> The HTTP pipeline for sending and receiving REST requests and responses. </param>

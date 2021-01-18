@@ -20,7 +20,7 @@ namespace MachineTranslation.Tests
             var translator = new TranslatorClient(location, new AzureKeyCredential(subscriptionKey));
 
             string sentence = "hello world";
-            var response = await translator.TranslateAsync(sentence, LanguageCodes.AR);
+            var response = await translator.TranslateAsync(sentence, LanguageCode.AR);
 
             Console.WriteLine(response);
         }

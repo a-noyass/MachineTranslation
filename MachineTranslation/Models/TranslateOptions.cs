@@ -5,8 +5,8 @@ namespace Azure.AI.Translator.Models
 {
     public class TranslateOptions
     {
-        public LanguageCodes To { get; set; }
-        public LanguageCodes? From { get; set; }
+        public LanguageCode? To { get; set; }
+        public LanguageCode? From { get; set; }
         public TextType? TextType { get; set; }
         public string Category { get; set; }
         public ProfanityAction? ProfanityAction { get; set; }
