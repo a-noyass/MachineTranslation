@@ -7,6 +7,7 @@ using Azure.AI.Translator.Models;
 using Azure.Core;
 using Azure.Core.Pipeline;
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -108,6 +109,76 @@ namespace Azure.AI.Translator
         {
             var job = await _serviceRestClient.TranslateBatchAsync(request, cancellationToken).ConfigureAwait(false);
             return new BatchesOperation(job.Headers.OperationLocation, this);
+        }
+
+        public AsyncPageable<BatchesJobState> GetBatchRequests(CancellationToken cancellationToken = default)
+        {
+            async Task<Page<BatchesJobState>> FirstPageFunc(int? pageSizeHint)
+            {
+                using DiagnosticScope scope = _clientDiagnostics.CreateScope($"{nameof(TranslatorClient)}.{nameof(GetBatchRequests)}");
+                scope.Start();
+
+                try
+                {
+                    var response = await _serviceRestClient.GetBatchRequests(null, null, cancellationToken).ConfigureAwait(false);
+
+                    var result = response.Value;
+                    return Page.FromValues(result.Value, result.NextLink, response.GetRawResponse());
+                }
+                catch (Exception e)
+                {
+                    scope.Failed(e);
+                    throw;
+                }
+            }
+
+            async Task<Page<BatchesJobState>> NextPageFunc(string nextLink, int? pageSizeHint)
+            {
+                using DiagnosticScope scope = _clientDiagnostics.CreateScope($"{nameof(TranslatorClient)}.{nameof(GetBatchRequests)}");
+                scope.Start();
+
+                try
+                {
+                    int top = default;
+                    int skip = default;
+
+                    // Extracting parameters from the URL.
+                    // nextLink - https://westus.api.cognitive.microsoft.com/translator/text/batch/v1.0-preview.1/batches?$skip=20&$top=0&showStats=true
+
+                    string @params = nextLink.Split('?').Last();
+                    // params = '$skip=20&$top=0'
+
+                    // Extracting Top and Skip parameter values
+                    string[] parameters = @params.Split('&');
+                    // '$skip=20', '$top=0'
+
+                    foreach (string paramater in parameters)
+                    {
+                        if (paramater.Contains("top"))
+                        {
+                            _ = int.TryParse(paramater.Split('=')[1], out top);
+                            // 0
+                        }
+                        if (paramater.Contains("skip"))
+                        {
+                            _ = int.TryParse(paramater.Split('=')[1], out skip);
+                            // 20
+                        }
+                    }
+
+                    Response<BatchStatusResponse> response = await _serviceRestClient.GetBatchRequests(skip, top, cancellationToken).ConfigureAwait(false);
+
+                    var result = response.Value;
+                    return Page.FromValues(result.Value, result.NextLink, response.GetRawResponse());
+                }
+                catch (Exception e)
+                {
+                    scope.Failed(e);
+                    throw;
+                }
+            }
+
+            return PageableHelpers.CreateAsyncEnumerable(FirstPageFunc, NextPageFunc);
         }
     }
 }
