@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Azure.AI.Translator.Models;
+using Azure.AI.Translator.Models.V1;
 using Azure.Core;
 using Azure.Core.Pipeline;
 using Newtonsoft.Json;
@@ -32,6 +33,103 @@ namespace Azure.AI.Translator.Http
             _clientDiagnostics = clientDiagnostics;
             _endpoint = endpoint;
             _pipeline = pipeline;
+        }
+
+        public async Task<ResponseWithHeaders<TranslatorBatchesHeaders>> TranslateBatchAsync(BatchTranslationRequest body, CancellationToken cancellationToken)
+        {
+            using var message = CreateBatchTranslateRequest(body);
+            await _pipeline.SendAsync(message, cancellationToken).ConfigureAwait(false);
+            var headers = new TranslatorBatchesHeaders(message.Response);
+            switch (message.Response.Status)
+            {
+                case 202:
+                    return ResponseWithHeaders.FromValue(headers, message.Response);
+                default:
+                    throw await _clientDiagnostics.CreateRequestFailedExceptionAsync(message.Response).ConfigureAwait(false);
+            }
+        }
+
+        internal HttpMessage CreateBatchTranslateRequest(BatchTranslationRequest body)
+        {
+            // initialize request
+            var message = _pipeline.CreateMessage();
+            var request = message.Request;
+            request.Method = RequestMethod.Post;
+
+            // construct URI
+            var uri = new RequestUriBuilder();
+            uri.Reset(new Uri(_endpoint));
+            uri.AppendPath("batches");
+            request.Uri = uri;
+
+            // add headers
+            request.Headers.Add(HttpHeader.Common.JsonContentType);
+
+            var content = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(body);
+            request.Content = RequestContent.Create(content);
+
+            return message;
+        }
+
+        public async Task<Response<BatchesJobState>> BatchesStatusAsync(string jobId, CancellationToken cancellationToken = default)
+        {
+            if (jobId == null)
+            {
+                throw new ArgumentNullException(nameof(jobId));
+            }
+
+            using var message = CreateBatchesStatusRequest(jobId);
+            await _pipeline.SendAsync(message, cancellationToken).ConfigureAwait(false);
+            switch (message.Response.Status)
+            {
+                case 200:
+                    {
+                        BatchesJobState value = default;
+                        using var document = await JsonDocument.ParseAsync(message.Response.ContentStream, default, cancellationToken).ConfigureAwait(false);
+                        value = JsonConvert.DeserializeObject<BatchesJobState>(document.RootElement.GetRawText());
+                        return Response.FromValue(value, message.Response);
+                    }
+                default:
+                    throw await _clientDiagnostics.CreateRequestFailedExceptionAsync(message.Response).ConfigureAwait(false);
+            }
+        }
+
+        public Response<BatchesJobState> BatchesStatus(string jobId, CancellationToken cancellationToken = default)
+        {
+            if (jobId == null)
+            {
+                throw new ArgumentNullException(nameof(jobId));
+            }
+
+            using var message = CreateBatchesStatusRequest(jobId);
+            _pipeline.Send(message, cancellationToken);
+            switch (message.Response.Status)
+            {
+                case 200:
+                    {
+                        BatchesJobState value = default;
+                        using var document = JsonDocument.Parse(message.Response.ContentStream);
+                        value = JsonConvert.DeserializeObject<BatchesJobState>(document.RootElement.GetRawText());
+                        return Response.FromValue(value, message.Response);
+                    }
+                default:
+                    throw _clientDiagnostics.CreateRequestFailedException(message.Response);
+            }
+        }
+
+        internal HttpMessage CreateBatchesStatusRequest(string jobId)
+        {
+            var message = _pipeline.CreateMessage();
+            var request = message.Request;
+            request.Method = RequestMethod.Get;
+            var uri = new RequestUriBuilder();
+            uri.Reset(new Uri(_endpoint));
+            uri.AppendPath("batches");
+            uri.AppendPath(jobId);
+
+            request.Uri = uri;
+            request.Headers.Add("Accept", "application/json, text/json");
+            return message;
         }
 
         internal HttpMessage CreateTranslateRequest(string text, TranslateOptions options)

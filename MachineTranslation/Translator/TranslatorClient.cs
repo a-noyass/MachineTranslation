@@ -4,6 +4,7 @@
 using Azure.AI.Translator.Http;
 using Azure.AI.Translator.Http.PipelinePolicies;
 using Azure.AI.Translator.Models;
+using Azure.AI.Translator.Models.V1;
 using Azure.Core;
 using Azure.Core.Pipeline;
 using System.Collections.Generic;
@@ -18,7 +19,7 @@ namespace Azure.AI.Translator
     public class TranslatorClient
     {
 
-        private readonly TranslatorRestClient _restClient;
+        internal readonly TranslatorRestClient _serviceRestClient;
         internal readonly ClientDiagnostics _clientDiagnostics;
 
         // attributes
@@ -47,7 +48,7 @@ namespace Azure.AI.Translator
                 new AzureKeyCredentialPolicy(subscriptionKey, AuthorizationHeader),
                 new CustomHeaderPolicy(LocationHeader, location),
                 new ApiVersionPolicy(options.GetVersionString()));
-            _restClient = new TranslatorRestClient(_clientDiagnostics, pipeline, Endpoint);
+            _serviceRestClient = new TranslatorRestClient(_clientDiagnostics, pipeline, Endpoint);
         }
 
         /// <summary>
@@ -79,8 +80,14 @@ namespace Azure.AI.Translator
             Argument.AssertNotNullOrEmpty(text, nameof(text));
             Argument.AssertNotNull(options, nameof(options));
             Argument.AssertNotNull(options.ToLanguage, nameof(options.ToLanguage));
-            var result = await _restClient.TranslateAsync(text, options, cancellationToken).ConfigureAwait(false);
+            var result = await _serviceRestClient.TranslateAsync(text, options, cancellationToken).ConfigureAwait(false);
             return result;
+        }
+
+        public async Task<BatchesOperation> TranslateBatchesAsync(BatchTranslationRequest request, CancellationToken cancellationToken)
+        {
+            var job = await _serviceRestClient.TranslateBatchAsync(request, cancellationToken).ConfigureAwait(false);
+            return new BatchesOperation(job.Headers.OperationLocation, this);
         }
     }
 }
