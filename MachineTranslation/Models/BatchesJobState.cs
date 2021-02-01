@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 
-namespace Azure.AI.Translator.Models.V1
+namespace Azure.AI.Translator.Models
 {
     public class BatchesJobState
     {

@@ -1,12 +1,12 @@
 ﻿using Newtonsoft.Json;
-using System;
+using System.Collections.Generic;
 
-namespace Azure.AI.Translator.Models.V1
+namespace Azure.AI.Translator.Models
 {
     public class BatchTranslationRequest
     {
         [JsonProperty("inputs")]
-        public Input[] Inputs { get; set; }
+        public List<Input> Inputs { get; set; }
     }
 
     public partial class Input
@@ -15,7 +15,7 @@ namespace Azure.AI.Translator.Models.V1
         public Source Source { get; set; }
 
         [JsonProperty("targets")]
-        public Target[] Targets { get; set; }
+        public List<Target> Targets { get; set; }
 
         [JsonProperty("storageType")]
         public string StorageType { get; set; }
@@ -24,7 +24,7 @@ namespace Azure.AI.Translator.Models.V1
     public partial class Source
     {
         [JsonProperty("sourceUrl")]
-        public Uri SourceUrl { get; set; }
+        public string SourceUrl { get; set; }
 
         [JsonProperty("filter")]
         public Filter Filter { get; set; }
@@ -48,7 +48,7 @@ namespace Azure.AI.Translator.Models.V1
     public partial class Target
     {
         [JsonProperty("targetUrl")]
-        public Uri TargetUrl { get; set; }
+        public string TargetUrl { get; set; }
 
         [JsonProperty("category")]
         public string Category { get; set; }
@@ -57,7 +57,7 @@ namespace Azure.AI.Translator.Models.V1
         public string Language { get; set; }
 
         [JsonProperty("glossaries")]
-        public Glossary[] Glossaries { get; set; }
+        public List<Glossary> Glossaries { get; set; }
 
         [JsonProperty("storageSource")]
         public string StorageSource { get; set; }
@@ -66,7 +66,7 @@ namespace Azure.AI.Translator.Models.V1
     public partial class Glossary
     {
         [JsonProperty("glossaryUrl")]
-        public Uri GlossaryUrl { get; set; }
+        public string GlossaryUrl { get; set; }
 
         [JsonProperty("format")]
         public string Format { get; set; }

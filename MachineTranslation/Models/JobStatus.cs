@@ -1,7 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 
-namespace Azure.AI.Translator.Models.V1
+namespace Azure.AI.Translator.Models
 {
     /// <summary> The State. </summary>
     public readonly partial struct JobStatus : IEquatable<JobStatus>

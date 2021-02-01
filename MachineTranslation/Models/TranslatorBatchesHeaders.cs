@@ -1,4 +1,4 @@
-﻿namespace Azure.AI.Translator.Models.V1
+﻿namespace Azure.AI.Translator.Models
 {
     class TranslatorBatchesHeaders
     {

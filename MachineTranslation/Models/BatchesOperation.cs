@@ -6,7 +6,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Azure.AI.Translator.Models.V1
+namespace Azure.AI.Translator.Models
 {
     public class BatchesOperation : Operation<BatchesJobState>
     {
