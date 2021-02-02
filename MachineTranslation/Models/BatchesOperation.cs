@@ -170,7 +170,7 @@ namespace Azure.AI.Translator.Models
                 try
                 {
                     Response<BatchStatusDetail> update = async
-                        ? await _serviceClient.BatchesStatusAsync(Id, cancellationToken).ConfigureAwait(false)
+                        ? await _serviceClient.BatchStatusAsync(Id, cancellationToken).ConfigureAwait(false)
                         : _serviceClient.BatchStatus(Id, cancellationToken);
 
                     _response = update.GetRawResponse();

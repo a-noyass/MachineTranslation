@@ -110,6 +110,16 @@ namespace Azure.AI.Translator
             return new BatchesOperation(_serviceRestClient, _clientDiagnostics, job.Headers.OperationLocation);
         }
 
+        public BatchStatusDetail BatchStatus(string jobId, CancellationToken cancellationToken = default)
+        {
+            return _serviceRestClient.BatchStatus(jobId, cancellationToken);
+        }
+
+        public async Task<BatchStatusDetail> BatchStatusAsync(string jobId, CancellationToken cancellationToken = default)
+        {
+            return await _serviceRestClient.BatchStatusAsync(jobId, cancellationToken).ConfigureAwait(false);
+        }
+
         public AsyncPageable<BatchStatusDetail> GetBatchRequests(CancellationToken cancellationToken = default)
         {
             async Task<Page<BatchStatusDetail>> FirstPageFunc(int? pageSizeHint)

@@ -82,7 +82,7 @@ namespace Azure.AI.Translator.Http
             return message;
         }
 
-        public async Task<Response<BatchStatusDetail>> BatchesStatusAsync(string jobId, CancellationToken cancellationToken = default)
+        public async Task<Response<BatchStatusDetail>> BatchStatusAsync(string jobId, CancellationToken cancellationToken = default)
         {
             if (jobId == null)
             {
