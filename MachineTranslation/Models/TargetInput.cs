@@ -36,7 +36,7 @@ namespace Azure.AI.Translator.Models
         /// <param name="glossaries">List of Glossary</param>
         /// <param name="storageSource">Possible values include:
         /// 'AzureBlob'</param>
-        public TargetInput(string targetUrl, string language, string category = default(string), IList<Glossary> glossaries = default(IList<Glossary>), string storageSource = default(string))
+        public TargetInput(string targetUrl, string language, string category = default(string), IList<Glossary> glossaries = default(IList<Glossary>), StorageSource storageSource = default(StorageSource))
         {
             TargetUrl = targetUrl;
             Category = category;
@@ -79,7 +79,7 @@ namespace Azure.AI.Translator.Models
         /// Gets or sets possible values include: 'AzureBlob'
         /// </summary>
         [JsonProperty(PropertyName = "storageSource")]
-        public string StorageSource { get; set; }
+        public StorageSource StorageSource { get; set; }
 
         /// <summary>
         /// Validate the object.

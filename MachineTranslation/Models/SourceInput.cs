@@ -33,7 +33,7 @@ namespace Azure.AI.Translator.Models
         /// document</param>
         /// <param name="storageSource">Possible values include:
         /// 'AzureBlob'</param>
-        public SourceInput(string sourceUrl, DocumentFilter filter = default(DocumentFilter), string language = default(string), string storageSource = default(string))
+        public SourceInput(string sourceUrl, DocumentFilter filter = default(DocumentFilter), string language = default(string), StorageSource storageSource = default(StorageSource))
         {
             SourceUrl = sourceUrl;
             Filter = filter;
@@ -70,7 +70,7 @@ namespace Azure.AI.Translator.Models
         /// Gets or sets possible values include: 'AzureBlob'
         /// </summary>
         [JsonProperty(PropertyName = "storageSource")]
-        public string StorageSource { get; set; }
+        public StorageSource StorageSource { get; set; }
 
         /// <summary>
         /// Validate the object.

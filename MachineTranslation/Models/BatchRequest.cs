@@ -32,7 +32,7 @@ namespace Azure.AI.Translator.Models
         /// output</param>
         /// <param name="storageType">Possible values include: 'Folder',
         /// 'File'</param>
-        public BatchRequest(SourceInput source, IList<TargetInput> targets, string storageType = default(string))
+        public BatchRequest(SourceInput source, IList<TargetInput> targets, StorageType storageType = default(StorageType))
         {
             Source = source;
             Targets = targets;
@@ -60,7 +60,7 @@ namespace Azure.AI.Translator.Models
         /// Gets or sets possible values include: 'Folder', 'File'
         /// </summary>
         [JsonProperty(PropertyName = "storageType")]
-        public string StorageType { get; set; }
+        public StorageType StorageType { get; set; }
 
         /// <summary>
         /// Validate the object.

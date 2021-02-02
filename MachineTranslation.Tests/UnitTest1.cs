@@ -34,13 +34,13 @@ namespace MachineTranslation.Tests
                 {
                     new BatchRequest()
                     {
-                        StorageType = "Folder",
+                        StorageType = StorageType.Folder,
 
                         Source = new SourceInput()
                         {
                             SourceUrl = "https://nourdocuments.blob.core.windows.net/translator?sv=2019-12-12&ss=bfqt&srt=sco&sp=rwdlacupx&se=2021-02-02T19:59:59Z&st=2021-02-02T11:59:59Z&spr=https&sig=F9JFFU1Yejrj%2BMXb%2FPzZk88Mg0awWPcSw%2FD4qIFe9Uo%3D",
                             Language = "en",
-                            StorageSource = "AzureBlob"
+                            StorageSource = StorageSource.AzureBlob
                         },
 
                         Targets = new List<TargetInput>()
@@ -49,7 +49,7 @@ namespace MachineTranslation.Tests
                             {
                                 Language = "it",
                                 TargetUrl = "https://nourdocuments.blob.core.windows.net/translatortarget?sv=2019-12-12&ss=bfqt&srt=sco&sp=rwdlacupx&se=2021-02-02T19:59:59Z&st=2021-02-02T11:59:59Z&spr=https&sig=F9JFFU1Yejrj%2BMXb%2FPzZk88Mg0awWPcSw%2FD4qIFe9Uo%3D",
-                                StorageSource = "AzureBlob",
+                                StorageSource = StorageSource.AzureBlob,
                             }
                         }
                     }
