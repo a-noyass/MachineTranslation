@@ -186,5 +186,49 @@ namespace Azure.AI.Translator.Http
             request.Headers.Add("Accept", "application/json, text/json");
             return message;
         }
+
+        public async Task<Response<DocumentStatusResponse>> GetBatchDocumentsAsync(string jobId, int? skip = null, int? top = null, CancellationToken cancellationToken = default)
+        {
+            using var message = CreateBatchDocumentsRequest(jobId, skip, top);
+            await _pipeline.SendAsync(message, cancellationToken).ConfigureAwait(false);
+            switch (message.Response.Status)
+            {
+                case 200:
+                    {
+                        DocumentStatusResponse value = default;
+                        using var document = await JsonDocument.ParseAsync(message.Response.ContentStream).ConfigureAwait(false);
+                        value = JsonConvert.DeserializeObject<DocumentStatusResponse>(document.RootElement.GetRawText());
+                        return Response.FromValue(value, message.Response);
+                    }
+                default:
+                    throw await _clientDiagnostics.CreateRequestFailedExceptionAsync(message.Response).ConfigureAwait(false);
+            }
+        }
+
+        internal HttpMessage CreateBatchDocumentsRequest(string jobId, int? skip = null, int? top = null)
+        {
+            var message = _pipeline.CreateMessage();
+            var request = message.Request;
+            request.Method = RequestMethod.Get;
+
+            var uri = new RawRequestUriBuilder();
+            uri.AppendRaw(endpoint, false);
+            uri.AppendRaw("/translator/text/batch/v1.0-preview.1", false);
+            uri.AppendPath("/batches", false);
+            uri.AppendPath(jobId, false);
+            uri.AppendPath("/documents", false);
+            if (top != null)
+            {
+                uri.AppendQuery("$top", top.Value, true);
+            }
+            if (skip != null)
+            {
+                uri.AppendQuery("$skip", skip.Value, true);
+            }
+            request.Uri = uri;
+
+            request.Headers.Add("Accept", "application/json, text/json");
+            return message;
+        }
     }
 }

@@ -16,7 +16,7 @@ namespace MachineTranslation.Tests
         [Fact]
         public async Task Test1Async()
         {
-            string subscriptionKey = "60c3b611ad4947509e8189419f5ff2a6";
+            string subscriptionKey = "7d232f685fc340b2ba463bda62a063a5";
             var endpoint = new Uri("https://Snyder-Test.cognitiveservices.azure.com");
             var translator = new TranslatorClient(endpoint, new AzureKeyCredential(subscriptionKey));
 
