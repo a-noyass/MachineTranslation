@@ -137,8 +137,8 @@ namespace Azure.AI.Translator.Http
             var uri = new RawRequestUriBuilder();
             uri.AppendRaw(endpoint, false);
             uri.AppendRaw("/translator/text/batch/v1.0-preview.1", false);
-            uri.AppendPath("/batches", false);
-            uri.AppendPath(jobId);
+            uri.AppendPath("/batches/", false);
+            uri.AppendPath(jobId, true);
             request.Uri = uri;
 
             request.Headers.Add("Accept", "application/json, text/json");
@@ -214,8 +214,8 @@ namespace Azure.AI.Translator.Http
             var uri = new RawRequestUriBuilder();
             uri.AppendRaw(endpoint, false);
             uri.AppendRaw("/translator/text/batch/v1.0-preview.1", false);
-            uri.AppendPath("/batches", false);
-            uri.AppendPath(jobId, false);
+            uri.AppendPath("/batches/", false);
+            uri.AppendPath(jobId, true);
             uri.AppendPath("/documents", false);
             if (top != null)
             {

@@ -4,33 +4,41 @@
 using Azure;
 using Azure.AI.Translator;
 using Azure.AI.Translator.Models;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace MachineTranslation.Tests
 {
     public class UnitTest1
     {
+        private readonly TranslatorClient _translator;
+        private readonly ITestOutputHelper output;
+
+        public UnitTest1(ITestOutputHelper output)
+        {
+            this.output = output;
+            string subscriptionKey = "7d232f685fc340b2ba463bda62a063a5";
+            var endpoint = new Uri("https://Snyder-Test.cognitiveservices.azure.com");
+            _translator = new TranslatorClient(endpoint, new AzureKeyCredential(subscriptionKey));
+        }
         [Fact]
         public async Task Test1Async()
         {
-            string subscriptionKey = "7d232f685fc340b2ba463bda62a063a5";
-            var endpoint = new Uri("https://Snyder-Test.cognitiveservices.azure.com");
-            var translator = new TranslatorClient(endpoint, new AzureKeyCredential(subscriptionKey));
-
-            var requestBody = new BatchSubmissionRequest()
+            BatchSubmissionRequest requestBody = new BatchSubmissionRequest()
             {
                 Inputs = new List<BatchRequest>()
                 {
                     new BatchRequest()
                     {
-                        StorageType = "File",
+                        StorageType = "Folder",
 
                         Source = new SourceInput()
                         {
-                            SourceUrl = "https://nourdocuments.blob.core.windows.net/translator/2005_Book_.txt?sp=r&st=2021-01-31T14:02:18Z&se=2021-01-31T22:02:18Z&spr=https&sv=2019-12-12&sr=b&sig=fWtFkBvSh0srLhRLe83a2Yc1olkFJGl8%2B1sVy00POec%3D" + "sp=r&st=2021-01-31T14:02:18Z&se=2021-01-31T22:02:18Z&spr=https&sv=2019-12-12&sr=b&sig=fWtFkBvSh0srLhRLe83a2Yc1olkFJGl8%2B1sVy00POec%3D",
+                            SourceUrl = "https://nourdocuments.blob.core.windows.net/translator?sv=2019-12-12&ss=bfqt&srt=sco&sp=rwdlacupx&se=2021-02-02T19:59:59Z&st=2021-02-02T11:59:59Z&spr=https&sig=F9JFFU1Yejrj%2BMXb%2FPzZk88Mg0awWPcSw%2FD4qIFe9Uo%3D",
                             Language = "en",
                             StorageSource = "AzureBlob"
                         },
@@ -40,31 +48,41 @@ namespace MachineTranslation.Tests
                             new TargetInput()
                             {
                                 Language = "it",
-                                TargetUrl = "https://nourdocuments.blob.core.windows.net/translator/2005_Book_it.txt?sp=r&st=2021-01-31T14:04:48Z&se=2021-01-31T22:04:48Z&spr=https&sv=2019-12-12&sr=b&sig=BgC6S2iJmKxCb426PFZ7PaV3B22esnjNvJ5wUszHw3k%3D",
-                                //Category = "[category]",
+                                TargetUrl = "https://nourdocuments.blob.core.windows.net/translatortarget?sv=2019-12-12&ss=bfqt&srt=sco&sp=rwdlacupx&se=2021-02-02T19:59:59Z&st=2021-02-02T11:59:59Z&spr=https&sig=F9JFFU1Yejrj%2BMXb%2FPzZk88Mg0awWPcSw%2FD4qIFe9Uo%3D",
                                 StorageSource = "AzureBlob",
-
-                                // Glossaries are only needed if you want to provide your own custom glossaries
-                                //Glossaries = new List<Glossary>()
-                                //{
-                                //    new Glossary()
-                                //    {
-                                //        Format = "[glossary format]",
-                                //        GlossaryUrl = "[glossary url]",
-
-                                //        // Version is optional in case of some extenstions (ex: tsv)
-                                //        Version = "[glossary format version]",
-                                //        StorageSource = "AzureBlob"
-                                //    }
-                                //}
                             }
                         }
                     }
                 }
             };
-            var response = await translator.TranslateBatchesAsync(requestBody);
 
-            Console.WriteLine(response);
+            var operation = await _translator.TranslateBatchesAsync(requestBody);
+
+            await operation.WaitForCompletionAsync();
+
+            output.WriteLine(JsonConvert.SerializeObject(operation.Value, Formatting.Indented));
+        }
+
+        [Fact]
+        public async Task Test2Async()
+        {
+            var documents = _translator.GetBatchDocuments("19e0688c-25ac-48e3-89ad-cb6f3b8e7046");
+            IAsyncEnumerator<DocumentStatusDetail> docsEnumerator = documents.GetAsyncEnumerator();
+            while (await docsEnumerator.MoveNextAsync())
+            {
+                output.WriteLine(JsonConvert.SerializeObject(docsEnumerator.Current, Formatting.Indented));
+            }
+        }
+
+        [Fact]
+        public async Task Test3Async()
+        {
+            var requests = _translator.GetBatchRequests();
+            IAsyncEnumerator<BatchStatusDetail> requestsEnumerator = requests.GetAsyncEnumerator();
+            while (await requestsEnumerator.MoveNextAsync())
+            {
+                output.WriteLine(JsonConvert.SerializeObject(requestsEnumerator.Current, Formatting.Indented));
+            }
         }
     }
 }

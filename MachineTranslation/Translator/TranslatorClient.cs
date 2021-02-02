@@ -101,13 +101,13 @@ namespace Azure.AI.Translator
         public BatchesOperation TranslateBatches(BatchSubmissionRequest request, CancellationToken cancellationToken = default)
         {
             var job = _serviceRestClient.TranslateBatch(request, cancellationToken);
-            return new BatchesOperation(job.Headers.OperationLocation, this);
+            return new BatchesOperation(_serviceRestClient, _clientDiagnostics, job.Headers.OperationLocation);
         }
 
         public async Task<BatchesOperation> TranslateBatchesAsync(BatchSubmissionRequest request, CancellationToken cancellationToken = default)
         {
             var job = await _serviceRestClient.TranslateBatchAsync(request, cancellationToken).ConfigureAwait(false);
-            return new BatchesOperation(job.Headers.OperationLocation, this);
+            return new BatchesOperation(_serviceRestClient, _clientDiagnostics, job.Headers.OperationLocation);
         }
 
         public AsyncPageable<BatchStatusDetail> GetBatchRequests(CancellationToken cancellationToken = default)
