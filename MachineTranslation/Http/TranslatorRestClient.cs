@@ -6,7 +6,6 @@ using Azure.Core;
 using Azure.Core.Pipeline;
 using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -35,7 +34,7 @@ namespace Azure.AI.Translator.Http
             _pipeline = pipeline;
         }
 
-        public ResponseWithHeaders<TranslatorBatchesHeaders> TranslateBatch(BatchTranslationRequest body, CancellationToken cancellationToken)
+        public ResponseWithHeaders<TranslatorBatchesHeaders> TranslateBatch(BatchSubmissionRequest body, CancellationToken cancellationToken)
         {
             using var message = CreateBatchTranslateRequest(body);
             _pipeline.Send(message, cancellationToken);
@@ -49,7 +48,7 @@ namespace Azure.AI.Translator.Http
             }
         }
 
-        public async Task<ResponseWithHeaders<TranslatorBatchesHeaders>> TranslateBatchAsync(BatchTranslationRequest body, CancellationToken cancellationToken)
+        public async Task<ResponseWithHeaders<TranslatorBatchesHeaders>> TranslateBatchAsync(BatchSubmissionRequest body, CancellationToken cancellationToken)
         {
             using var message = CreateBatchTranslateRequest(body);
             await _pipeline.SendAsync(message, cancellationToken).ConfigureAwait(false);
@@ -63,7 +62,7 @@ namespace Azure.AI.Translator.Http
             }
         }
 
-        internal HttpMessage CreateBatchTranslateRequest(BatchTranslationRequest body)
+        internal HttpMessage CreateBatchTranslateRequest(BatchSubmissionRequest body)
         {
             var message = _pipeline.CreateMessage();
             var request = message.Request;
@@ -77,14 +76,13 @@ namespace Azure.AI.Translator.Http
 
             request.Headers.Add(HttpHeader.Common.JsonContentType);
 
-            var content = new Utf8JsonRequestContent();
-            content.JsonWriter.WriteObjectValue(body);
-            request.Content = content;
+            var content = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(body);
+            request.Content = RequestContent.Create(content);
 
             return message;
         }
 
-        public async Task<Response<BatchesJobState>> BatchesStatusAsync(string jobId, CancellationToken cancellationToken = default)
+        public async Task<Response<BatchStatusDetail>> BatchesStatusAsync(string jobId, CancellationToken cancellationToken = default)
         {
             if (jobId == null)
             {
@@ -97,9 +95,9 @@ namespace Azure.AI.Translator.Http
             {
                 case 200:
                     {
-                        BatchesJobState value = default;
+                        BatchStatusDetail value = default;
                         using var document = await JsonDocument.ParseAsync(message.Response.ContentStream, default, cancellationToken).ConfigureAwait(false);
-                        value = JsonConvert.DeserializeObject<BatchesJobState>(document.RootElement.GetRawText());
+                        value = JsonConvert.DeserializeObject<BatchStatusDetail>(document.RootElement.GetRawText());
                         return Response.FromValue(value, message.Response);
                     }
                 default:
@@ -107,7 +105,7 @@ namespace Azure.AI.Translator.Http
             }
         }
 
-        public Response<BatchesJobState> BatchStatus(string jobId, CancellationToken cancellationToken = default)
+        public Response<BatchStatusDetail> BatchStatus(string jobId, CancellationToken cancellationToken = default)
         {
             if (jobId == null)
             {
@@ -120,9 +118,9 @@ namespace Azure.AI.Translator.Http
             {
                 case 200:
                     {
-                        BatchesJobState value = default;
+                        BatchStatusDetail value = default;
                         using var document = JsonDocument.Parse(message.Response.ContentStream);
-                        value = JsonConvert.DeserializeObject<BatchesJobState>(document.RootElement.GetRawText());
+                        value = JsonConvert.DeserializeObject<BatchStatusDetail>(document.RootElement.GetRawText());
                         return Response.FromValue(value, message.Response);
                     }
                 default:

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Azure.AI.Translator.Models
 {
-    public class BatchesOperation : Operation<BatchesJobState>
+    public class BatchesOperation : Operation<BatchStatusDetail>
     {
         /// <summary>Provides communication with the Translator Cognitive Service through its REST API.</summary>
         private readonly TranslatorRestClient _serviceClient;
@@ -28,7 +28,7 @@ namespace Azure.AI.Translator.Models
         /// <remarks>
         /// This property can be accessed only after the operation completes successfully (HasValue is true).
         /// </remarks>
-        public override BatchesJobState Value
+        public override BatchStatusDetail Value
         {
             get
             {
@@ -57,7 +57,7 @@ namespace Azure.AI.Translator.Models
         private Response _response;
 
         /// <summary>The result of the long-running operation. <c>null</c> until result is received on status update.</summary>
-        private BatchesJobState _value;
+        private BatchStatusDetail _value;
 
         private int? _top { get; }
         private int? _skip { get; }
@@ -135,7 +135,7 @@ namespace Azure.AI.Translator.Models
         /// <remarks>
         /// This method will periodically call UpdateStatusAsync till HasCompleted is true, then return the final result of the operation.
         /// </remarks>
-        public override ValueTask<Response<BatchesJobState>> WaitForCompletionAsync(CancellationToken cancellationToken = default) =>
+        public override ValueTask<Response<BatchStatusDetail>> WaitForCompletionAsync(CancellationToken cancellationToken = default) =>
             this.DefaultWaitForCompletionAsync(cancellationToken);
 
         /// <summary>
@@ -151,7 +151,7 @@ namespace Azure.AI.Translator.Models
         /// <remarks>
         /// This method will periodically call UpdateStatusAsync till HasCompleted is true, then return the final result of the operation.
         /// </remarks>
-        public override ValueTask<Response<BatchesJobState>> WaitForCompletionAsync(TimeSpan pollingInterval, CancellationToken cancellationToken = default) =>
+        public override ValueTask<Response<BatchStatusDetail>> WaitForCompletionAsync(TimeSpan pollingInterval, CancellationToken cancellationToken = default) =>
             this.DefaultWaitForCompletionAsync(pollingInterval, cancellationToken);
 
         /// <summary>
@@ -169,7 +169,7 @@ namespace Azure.AI.Translator.Models
 
                 try
                 {
-                    Response<BatchesJobState> update = async
+                    Response<BatchStatusDetail> update = async
                         ? await _serviceClient.BatchesStatusAsync(Id, cancellationToken).ConfigureAwait(false)
                         : _serviceClient.BatchStatus(Id, cancellationToken);
 

@@ -20,24 +20,24 @@ namespace MachineTranslation.Tests
             var endpoint = new Uri("https://Snyder-Test.cognitiveservices.azure.com");
             var translator = new TranslatorClient(endpoint, new AzureKeyCredential(subscriptionKey));
 
-            var requestBody = new BatchTranslationRequest()
+            var requestBody = new BatchSubmissionRequest()
             {
-                Inputs = new List<Input>()
+                Inputs = new List<BatchRequest>()
                 {
-                    new Input()
+                    new BatchRequest()
                     {
                         StorageType = "File",
 
-                        Source = new Source()
+                        Source = new SourceInput()
                         {
                             SourceUrl = "https://nourdocuments.blob.core.windows.net/translator/2005_Book_.txt?sp=r&st=2021-01-31T14:02:18Z&se=2021-01-31T22:02:18Z&spr=https&sv=2019-12-12&sr=b&sig=fWtFkBvSh0srLhRLe83a2Yc1olkFJGl8%2B1sVy00POec%3D" + "sp=r&st=2021-01-31T14:02:18Z&se=2021-01-31T22:02:18Z&spr=https&sv=2019-12-12&sr=b&sig=fWtFkBvSh0srLhRLe83a2Yc1olkFJGl8%2B1sVy00POec%3D",
                             Language = "en",
                             StorageSource = "AzureBlob"
                         },
 
-                        Targets = new List<Target>()
+                        Targets = new List<TargetInput>()
                         {
-                            new Target()
+                            new TargetInput()
                             {
                                 Language = "it",
                                 TargetUrl = "https://nourdocuments.blob.core.windows.net/translator/2005_Book_it.txt?sp=r&st=2021-01-31T14:04:48Z&se=2021-01-31T22:04:48Z&spr=https&sv=2019-12-12&sr=b&sig=BgC6S2iJmKxCb426PFZ7PaV3B22esnjNvJ5wUszHw3k%3D",

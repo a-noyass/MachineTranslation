@@ -4,34 +4,34 @@
 // regenerated.
 // </auto-generated>
 
+using Newtonsoft.Json;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+
 namespace Azure.AI.Translator.Models
 {
-    using Newtonsoft.Json;
-    using System.Collections;
-    using System.Collections.Generic;
-    using System.Linq;
-
     /// <summary>
     /// Document Status Response
     /// </summary>
-    public partial class BatchStatusResponse
+    public partial class DocumentStatusResponse
     {
         /// <summary>
-        /// Initializes a new instance of the BatchStatusResponse class.
+        /// Initializes a new instance of the DocumentStatusResponse class.
         /// </summary>
-        public BatchStatusResponse()
+        public DocumentStatusResponse()
         {
             CustomInit();
         }
 
         /// <summary>
-        /// Initializes a new instance of the BatchStatusResponse class.
+        /// Initializes a new instance of the DocumentStatusResponse class.
         /// </summary>
-        /// <param name="value">The summary status of individual
-        /// operation</param>
+        /// <param name="value">The detail status of individual
+        /// documents</param>
         /// <param name="nextLink">Url for the next page.  Null if no more
         /// pages available</param>
-        public BatchStatusResponse(IList<BatchStatusDetail> value = default(IList<BatchStatusDetail>), string nextLink = default(string))
+        public DocumentStatusResponse(IList<DocumentStatusDetail> value = default(IList<DocumentStatusDetail>), string nextLink = default(string))
         {
             Value = value;
             NextLink = nextLink;
@@ -44,10 +44,10 @@ namespace Azure.AI.Translator.Models
         partial void CustomInit();
 
         /// <summary>
-        /// Gets or sets the summary status of individual operation
+        /// Gets or sets the detail status of individual documents
         /// </summary>
         [JsonProperty(PropertyName = "value")]
-        public IList<BatchStatusDetail> Value { get; set; }
+        public IList<DocumentStatusDetail> Value { get; set; }
 
         /// <summary>
         /// Gets or sets url for the next page.  Null if no more pages

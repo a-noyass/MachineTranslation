@@ -3,7 +3,6 @@
 
 using Azure.AI.Translator.Http;
 using Azure.AI.Translator.Models;
-using Azure.AI.Translator.Models;
 using Azure.Core;
 using Azure.Core.Pipeline;
 using System;
@@ -99,21 +98,21 @@ namespace Azure.AI.Translator
         {
         }
 
-        public BatchesOperation TranslateBatches(BatchTranslationRequest request, CancellationToken cancellationToken = default)
+        public BatchesOperation TranslateBatches(BatchSubmissionRequest request, CancellationToken cancellationToken = default)
         {
             var job = _serviceRestClient.TranslateBatch(request, cancellationToken);
             return new BatchesOperation(job.Headers.OperationLocation, this);
         }
 
-        public async Task<BatchesOperation> TranslateBatchesAsync(BatchTranslationRequest request, CancellationToken cancellationToken = default)
+        public async Task<BatchesOperation> TranslateBatchesAsync(BatchSubmissionRequest request, CancellationToken cancellationToken = default)
         {
             var job = await _serviceRestClient.TranslateBatchAsync(request, cancellationToken).ConfigureAwait(false);
             return new BatchesOperation(job.Headers.OperationLocation, this);
         }
 
-        public AsyncPageable<BatchesJobState> GetBatchRequests(CancellationToken cancellationToken = default)
+        public AsyncPageable<BatchStatusDetail> GetBatchRequests(CancellationToken cancellationToken = default)
         {
-            async Task<Page<BatchesJobState>> FirstPageFunc(int? pageSizeHint)
+            async Task<Page<BatchStatusDetail>> FirstPageFunc(int? pageSizeHint)
             {
                 using DiagnosticScope scope = _clientDiagnostics.CreateScope($"{nameof(TranslatorClient)}.{nameof(GetBatchRequests)}");
                 scope.Start();
@@ -132,7 +131,7 @@ namespace Azure.AI.Translator
                 }
             }
 
-            async Task<Page<BatchesJobState>> NextPageFunc(string nextLink, int? pageSizeHint)
+            async Task<Page<BatchStatusDetail>> NextPageFunc(string nextLink, int? pageSizeHint)
             {
                 using DiagnosticScope scope = _clientDiagnostics.CreateScope($"{nameof(TranslatorClient)}.{nameof(GetBatchRequests)}");
                 scope.Start();
